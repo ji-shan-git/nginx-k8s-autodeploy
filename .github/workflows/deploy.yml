@@ -1,0 +1,25 @@
+name: Auto Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 192.46.215.64 >> ~/.ssh/known_hosts
+
+      - name: Deploy to server
+        run: |
+          ssh root@192.46.215.64 "cd /root/nginx-k8s-autodeploy && git pull origin main"
