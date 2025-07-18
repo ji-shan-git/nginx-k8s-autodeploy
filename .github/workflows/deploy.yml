@@ -20,6 +20,12 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 192.46.215.64 >> ~/.ssh/known_hosts
 
-      - name: Deploy to server
+      - name: Deploy to Kubernetes
         run: |
-          ssh root@192.46.215.64 "cd /root/nginx-k8s-autodeploy && git pull origin main"
+          ssh root@192.46.215.64 << 'EOF'
+            cd /root/nginx-k8s-autodeploy
+            git pull origin main
+            export KUBECONFIG=/root/my-k8s-cluster-kubeconfig.yaml
+            kubectl apply -f manifest/nginx-deployment.yaml
+            kubectl apply -f manifest/nginx-service.yaml
+          EOF
